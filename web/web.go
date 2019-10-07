@@ -72,6 +72,9 @@ func (s *Server) Run() error {
 
 	router.Handle("/hydra", s.HydraAPIs.HydraGETHandler()).Methods("GET")
 
+	router.Handle("/email-confirmation", s.UserCredentialsAPIs.GETEmailConfirmationPageHandler("/email-confirmation")).Methods("GET")
+	router.Handle("/email-confirmation", s.UserCredentialsAPIs.GETEmailConfirmationPageHandler("/email-confirmation")).Methods("GET")
+
 	secureRouter.Handle("/update", s.UserCredentialsAPIs.GETUpdatePageHandler("/secure/update")).Methods("GET")
 	secureRouter.Handle("/update", s.UserCredentialsAPIs.PUTHandler()).Methods("PUT")
 
