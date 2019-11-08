@@ -2,6 +2,9 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/labbsr0x/goh/gohserver"
 	"github.com/labbsr0x/goh/gohtypes"
 	whisper "github.com/labbsr0x/whisper-client/client"
@@ -13,8 +16,6 @@ import (
 	"github.com/labbsr0x/whisper/web/config"
 	"github.com/labbsr0x/whisper/web/ui"
 	"github.com/sirupsen/logrus"
-	"net/http"
-	"net/url"
 )
 
 // UserCredentialsAPI defines the available user apis
@@ -72,7 +73,7 @@ func (dapi *DefaultUserCredentialsAPI) PUTHandler() http.Handler {
 
 		if token, ok := r.Context().Value(whisper.TokenKey).(whisper.Token); ok {
 			err := misc.ValidatePassword(payload.NewPassword, token.Subject, payload.Email)
-			gohtypes.PanicIfError("Invalid Password", http.StatusInternalServerError, err)
+			gohtypes.PanicIfError("Invalid Password", http.StatusBadRequest, err)
 
 			dapi.UserCredentialsDAO.CheckCredentials(token.Subject, payload.OldPassword)
 
@@ -91,11 +92,11 @@ func (dapi *DefaultUserCredentialsAPI) GETRegistrationPageHandler(route string) 
 		gohtypes.PanicIfError("Unable to parse the login_challenge parameter", http.StatusBadRequest, err)
 
 		page := types.RegistrationPage{
-			LoginChallenge:              challenge,
-			PasswordTooltip:             misc.GetPasswordTooltip(),
-			PasswordMinCharacters:       misc.PasswordMinCharacters,
-			PasswordMaxCharacters:       misc.PasswordMaxCharacters,
-			PasswordMinUniqueCharacters: misc.PasswordMinUniqueCharacters,
+			LoginChallenge:        challenge,
+			PasswordTooltip:       misc.PasswordTooltip,
+			PasswordMinChar:       misc.PasswordMinChar,
+			PasswordMaxChar:       misc.PasswordMaxChar,
+			PasswordMinUniqueChar: misc.PasswordMinUniqueChar,
 		}
 		ui.WritePage(w, dapi.BaseUIPath, ui.Registration, &page)
 	}))
@@ -163,10 +164,10 @@ func (dapi *DefaultUserCredentialsAPI) GETChangePasswordStep2PageHandler(route s
 		page := types.ChangePasswordStep2Page{
 			Username:                    userCredential.Username,
 			Email:                       userCredential.Email,
-			PasswordTooltip:             misc.GetPasswordTooltip(),
-			PasswordMinCharacters:       misc.PasswordMinCharacters,
-			PasswordMaxCharacters:       misc.PasswordMaxCharacters,
-			PasswordMinUniqueCharacters: misc.PasswordMinUniqueCharacters,
+			PasswordTooltip:             misc.PasswordTooltip,
+			PasswordMinCharacters:       misc.PasswordMinChar,
+			PasswordMaxCharacters:       misc.PasswordMaxChar,
+			PasswordMinUniqueCharacters: misc.PasswordMinUniqueChar,
 		}
 
 		ui.WritePage(w, dapi.BaseUIPath, ui.ChangePasswordStep2, &page)
@@ -225,13 +226,13 @@ func (dapi *DefaultUserCredentialsAPI) GETUpdatePageHandler(route string) http.H
 			gohtypes.PanicIfError(fmt.Sprintf("Could not find credentials with username '%v'", token.Subject), http.StatusInternalServerError, err)
 
 			page := types.UpdatePage{
-				RedirectTo:                  redirectTo,
-				Username:                    userCredentials.Username,
-				Email:                       userCredentials.Email,
-				PasswordTooltip:             misc.GetPasswordTooltip(),
-				PasswordMinCharacters:       misc.PasswordMinCharacters,
-				PasswordMaxCharacters:       misc.PasswordMaxCharacters,
-				PasswordMinUniqueCharacters: misc.PasswordMinUniqueCharacters,
+				RedirectTo:            redirectTo,
+				Username:              userCredentials.Username,
+				Email:                 userCredentials.Email,
+				PasswordTooltip:       misc.PasswordTooltip,
+				PasswordMinChar:       misc.PasswordMinChar,
+				PasswordMaxChar:       misc.PasswordMaxChar,
+				PasswordMinUniqueChar: misc.PasswordMinUniqueChar,
 			}
 			ui.WritePage(w, dapi.BaseUIPath, ui.Update, &page)
 
